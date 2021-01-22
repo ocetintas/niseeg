@@ -1,36 +1,58 @@
 import dlib
 import numpy as np
 import cv2
+import os
+import os.path as osp
+import shutil
+
+# PARAMETERS TO CHANGE FOR PROCESSING
+DATA_PATH = 'data/face_videos'
+subjects = [10, 12, 13]
+OUTPUT_PATH = 'data/landmarks'
+
 
 predictor_path = 'models/shape_predictor_81_face_landmarks.dat'
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(predictor_path)
 
-sequence_landmarks = []
 
-cap = cv2.VideoCapture('data/face_videos/s01/s01_trial01.avi')
-while cap.isOpened():
-    ret, frame = cap.read()
-    if ret:
-        dets = detector(frame, 0)
-        if not dets:
-            print("Face detection is missed, using zero array")
-            landmarks = np.zeros((81, 2))
-        else:
-            for k, d in enumerate(dets):
-                shape = predictor(frame, d)
-                landmarks = np.array([[p.x/frame.shape[1], p.y/frame.shape[0]] for p in shape.parts()])  # Normalize
-                for num in range(shape.num_parts):
-                    cv2.circle(frame, (shape.parts()[num].x, shape.parts()[num].y), 3, (0, 255, 0), -1)
-                cv2.imshow('frame', frame)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    print("q pressed")
-                    break
-        sequence_landmarks.append(landmarks)
-    else:
-        # Sequence is over
-        break
+for s in subjects:
+    print("Processing subject: ", s)
+    subj_code = 's' + '{:02d}'.format(s)
+    landmark_path = osp.join(OUTPUT_PATH, subj_code)
 
-sequence_landmarks = np.array(sequence_landmarks)
-np.save("test.npy", sequence_landmarks)
+    # Create the folder
+    if osp.exists(landmark_path):
+        print("Found existing landmarks. Deleting them and replacing them for new ones")
+        shutil.rmtree(landmark_path)
+    os.makedirs(landmark_path)
+
+    for t in range(1, 41):
+        print("     Processing trial: ", t)
+        # Get the file
+        trial_code = 'trial' + '{:02d}'.format(t)
+        seq_file = osp.join(DATA_PATH, subj_code, subj_code+'_'+trial_code+'.avi')
+
+        cap = cv2.VideoCapture(seq_file)  # Get the frames
+        sequence_landmarks = []  # Array to store the landmarks
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if ret:
+                dets = detector(frame, 0)
+                if not dets:
+                    print("Face detection is missed, using zero array")
+                    landmarks = np.zeros((81, 2))
+                    sequence_landmarks.append(landmarks)
+                else:
+                    for k, d in enumerate(dets):
+                        shape = predictor(frame, d)
+                        landmarks = np.array([[p.x/frame.shape[1], p.y/frame.shape[0]] for p in shape.parts()])  # Normalize
+                        sequence_landmarks.append(landmarks)
+            else:
+                # Sequence is over
+                break
+
+        sequence_landmarks = np.array(sequence_landmarks)
+        landmark_file = osp.join(landmark_path,  subj_code+'_'+trial_code+'.npy')
+        np.save(landmark_file, sequence_landmarks)
 
