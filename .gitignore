@@ -1,3 +1,4 @@
 data/
 pretrained_models/
 .idea/
+src/**/__pycache__
