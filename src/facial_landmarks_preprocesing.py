@@ -7,11 +7,11 @@ import shutil
 
 # PARAMETERS TO CHANGE FOR PROCESSING
 DATA_PATH = 'data/face_videos'
-subjects = [10, 12, 13]
+subjects = [1]
 OUTPUT_PATH = 'data/landmarks'
 
 
-predictor_path = 'models/shape_predictor_81_face_landmarks.dat'
+predictor_path = 'pretrained_models/shape_predictor_81_face_landmarks.dat'
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(predictor_path)
 
