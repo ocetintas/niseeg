@@ -27,7 +27,7 @@ train_loss = []
 val_loss = []
 val_acc_all = []
 
-num_epochs = 30
+num_epochs = 100
 
 for epoch in range(num_epochs):
     epoch_loss = []
