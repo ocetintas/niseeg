@@ -55,7 +55,7 @@ for epoch in range(num_epochs):
             preds = emotion_classifier(face_data)
             epoch_val_loss.append(mse_loss(preds.squeeze(), y))
             preds = preds >= 5
-            val_acc = (preds.squeeze() == (y>5)).sum()/len(y)
+            val_acc = (preds.cpu().squeeze() == (y.cpu()>5)).sum()/len(y)
             val_acc_running.append(val_acc)
         val_acc_all.append(np.mean(val_acc_running))
         val_loss.append(np.mean(epoch_val_loss))
