@@ -26,7 +26,7 @@ train_loss = []
 val_loss = []
 val_acc_all = []
 
-num_epochs = 50
+num_epochs = 30
 
 for epoch in range(num_epochs):
     epoch_loss = []
@@ -35,10 +35,10 @@ for epoch in range(num_epochs):
         # Get the data
         # eeg_data = batch['eeg']
         face_data = batch['face']
-        y = (batch['label_arousal'] > 5).float()  # Map to 0 or 1
+        y = batch['label_arousal']# Map to 0 or 1
         optimizer.zero_grad()  #
         preds = emotion_classifier(face_data)  # Forward pass
-        loss = bce_loss(preds.squeeze(), y)  # Loss
+        loss = mse_loss(preds.squeeze(), y)  # Loss
         loss.backward()  ##
         optimizer.step()  ###
         epoch_loss.append(loss.item())
@@ -50,11 +50,11 @@ for epoch in range(num_epochs):
         val_acc_running = []
         for i, batch in enumerate(val_dataloader):
             face_data = batch['face']
-            y = (batch['label_arousal']) >= 5
+            y = (batch['label_arousal'])
             preds = emotion_classifier(face_data)
-            epoch_val_loss.append(bce_loss(preds.squeeze(), y.float()))
-            preds = preds >= 0.5
-            val_acc = (preds.squeeze() == y).sum()/len(y)
+            epoch_val_loss.append(mse_loss(preds.squeeze(), y))
+            preds = preds >= 5
+            val_acc = (preds.squeeze() == (y>5)).sum()/len(y)
             val_acc_running.append(val_acc)
         val_acc_all.append(np.mean(val_acc_running))
         val_loss.append(np.mean(epoch_val_loss))
@@ -67,7 +67,6 @@ plt.ylabel("Loss")
 plt.legend()
 plt.savefig("loss.png")
 plt.show()
-
 
 
 plt.plot(np.arange(1, num_epochs+1), val_acc_all, label="Val accuracy")

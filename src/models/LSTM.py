@@ -17,5 +17,5 @@ class LSTM(nn.Module):
         x, _ = self.lstm2(x)
         x = self.relu2(x)
         x = self.fc1(x[:, -1, :])  # Only use the last step
-        x = torch.sigmoid(x)
+        x = 10*torch.sigmoid(x)  # Map between 0 and 1
         return x
