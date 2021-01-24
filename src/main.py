@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print("Device: ", device)
 deap_dataset = DEAP(subject=10, num_segments=12)
 
 train_indices, val_indices = deap_dataset.train_valid_split(split_ratio=0.2)
@@ -17,7 +18,7 @@ val_sampler = SubsetRandomSampler(val_indices)
 train_dataloader = DataLoader(dataset=deap_dataset, batch_size=8, sampler=train_sampler)
 val_dataloader = DataLoader(dataset=deap_dataset, batch_size=8, sampler=val_sampler)
 
-emotion_classifier = LSTM()
+emotion_classifier = LSTM().to(device)
 mse_loss = nn.MSELoss()
 bce_loss = nn.BCELoss()
 optimizer = optim.Adam(emotion_classifier.parameters(), lr=0.005)
@@ -34,8 +35,8 @@ for epoch in range(num_epochs):
     for i, batch in enumerate(train_dataloader):
         # Get the data
         # eeg_data = batch['eeg']
-        face_data = batch['face']
-        y = batch['label_arousal']# Map to 0 or 1
+        face_data = batch['face'].to(device)
+        y = batch['label_arousal'].to(device)  # Map to 0 or 1
         optimizer.zero_grad()  #
         preds = emotion_classifier(face_data)  # Forward pass
         loss = mse_loss(preds.squeeze(), y)  # Loss
@@ -49,8 +50,8 @@ for epoch in range(num_epochs):
         epoch_val_loss = []
         val_acc_running = []
         for i, batch in enumerate(val_dataloader):
-            face_data = batch['face']
-            y = (batch['label_arousal'])
+            face_data = batch['face'].to(device)
+            y = (batch['label_arousal']).to(device)
             preds = emotion_classifier(face_data)
             epoch_val_loss.append(mse_loss(preds.squeeze(), y))
             preds = preds >= 5
