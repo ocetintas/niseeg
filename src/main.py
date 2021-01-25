@@ -6,6 +6,19 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 import matplotlib.pyplot as plt
+import random
+import os
+
+
+# Make process deterministic
+seed = 123
+random.seed(seed)
+torch.manual_seed(seed)
+torch.cuda.manual_seed_all(seed)
+np.random.seed(seed)
+os.environ['PYTHONHASHSEED'] = str(seed)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print("Device: ", device)
