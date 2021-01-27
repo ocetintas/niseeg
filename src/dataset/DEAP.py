@@ -7,9 +7,10 @@ import os.path as osp
 
 
 class DEAP(Dataset):
-    def __init__(self, subject=12, num_segments=12):
+    def __init__(self, subject=12, num_segments=12, device='cpu'):
         self.subject = subject
         self.num_segments = num_segments
+        self.device = device
         self._load_data()
 
     def _get_subject_file_names(self, s):
@@ -28,11 +29,12 @@ class DEAP(Dataset):
             landmark_files.append(trial_file_name)
         return eeg_file, landmark_files
 
-    def _read_eeg_file(self, file):
+    def _read_eeg_file(self, file, seconds_to_remove=3, sampling_freq=128):
         data = scipy.io.loadmat(file)
         eeg_data = data['data'][:, :32, :]  # First 32 channels belong to the EEG (video=40, channel=40, data=8064)
+        eeg_data = eeg_data[:, :, sampling_freq*seconds_to_remove:]  # Remove baseline recording
         labels = data['labels']  # valence, arousal, dominance, liking (video=40, 4)
-        assert eeg_data.shape == (40, 32, 8064), "EEG data reading failed!"
+        assert eeg_data.shape == (40, 32, 8064 - sampling_freq*seconds_to_remove), "EEG data reading failed!"
         assert labels.shape == (40, 4), "Labels reading failed!"
         return eeg_data, labels
 
@@ -84,7 +86,10 @@ class DEAP(Dataset):
         return self.eeg.shape[0]
 
     def __getitem__(self, ix):
-        return {"eeg": self.eeg[ix], "face": self.landmark[ix], "label_val": self.labels[ix, 0], "label_arousal": self.labels[ix, 1]}
+        return {"eeg": self.eeg[ix].to(self.device),
+                "face": self.landmark[ix].to(self.device),
+                "label_val": self.labels[ix, 0].to(self.device),
+                "label_arousal": self.labels[ix, 1].to(self.device)}
 
     def train_valid_split(self, split_ratio=0.2):
         split_idx = int(split_ratio * len(self))
