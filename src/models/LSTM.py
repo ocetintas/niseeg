@@ -15,7 +15,7 @@ class LSTM(nn.Module):
         self.lstm2_e = nn.LSTM(input_size=64, hidden_size=32, batch_first=True)
         self.relu2_e = nn.ReLU(inplace=False)
 
-        self.fc1 = nn.Linear(in_features=32, out_features=1)
+        self.fc1 = nn.Linear(in_features=64, out_features=1)
 
     def forward(self, l, e):
 
@@ -26,14 +26,13 @@ class LSTM(nn.Module):
         l = self.relu2_l(l)
 
         # # EEG forward pass
-        # e, _ = self.lstm1_e(e)
-        # e = self.relu1_e(e)
-        # e, _ = self.lstm2_e(e)
-        # e = self.relu2_e(e)
+        e, _ = self.lstm1_e(e)
+        e = self.relu1_e(e)
+        e, _ = self.lstm2_e(e)
+        e = self.relu2_e(e)
 
         # Concat and classify
-        # out = self.fc1(torch.cat((l[:, -1, :], e[:, -1, :]), dim=1))
-        out = self.fc1(l[:, -1, :])
+        out = self.fc1(torch.cat((l[:, -1, :], e[:, -1, :]), dim=1))
         out = 10*torch.sigmoid(out)
 
         return out
