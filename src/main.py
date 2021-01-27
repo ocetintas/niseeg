@@ -40,7 +40,7 @@ train_loss = []
 val_loss = []
 val_acc_all = []
 
-num_epochs = 75
+num_epochs = 50
 
 for epoch in range(num_epochs):
     epoch_loss = []
@@ -49,7 +49,7 @@ for epoch in range(num_epochs):
         # Get the data
         eeg_data = batch['eeg']
         face_data = batch['face']
-        y = batch['label_arousal']
+        y = batch['label_val']
         optimizer.zero_grad()  #
         preds = emotion_classifier(face_data, eeg_data)  # Forward pass
         loss = mse_loss(preds.squeeze(), y)  # Loss
@@ -65,7 +65,7 @@ for epoch in range(num_epochs):
         for i, batch in enumerate(val_dataloader):
             eeg_data = batch['eeg']
             face_data = batch['face']
-            y = batch['label_arousal']
+            y = batch['label_val']
             preds = emotion_classifier(face_data, eeg_data)
             epoch_val_loss.append(float(mse_loss(preds.squeeze(), y).item()))
             preds = preds >= 5
