@@ -11,7 +11,7 @@ import os
 
 
 # Make process deterministic
-seed = 123
+seed = 7 + 14
 random.seed(seed)
 torch.manual_seed(seed)
 torch.cuda.manual_seed_all(seed)
@@ -34,13 +34,13 @@ val_dataloader = DataLoader(dataset=deap_dataset, batch_size=8, sampler=val_samp
 emotion_classifier = LSTM().to(device)
 mse_loss = nn.MSELoss()
 bce_loss = nn.BCELoss()
-optimizer = optim.Adam(emotion_classifier.parameters(), lr=0.005)
+optimizer = optim.Adam(emotion_classifier.parameters(), lr=0.001)
 
 train_loss = []
 val_loss = []
 val_acc_all = []
 
-num_epochs = 50
+num_epochs = 75
 
 for epoch in range(num_epochs):
     epoch_loss = []
