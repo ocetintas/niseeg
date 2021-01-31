@@ -22,7 +22,7 @@ torch.backends.cudnn.benchmark = False
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print("Device: ", device)
-deap_dataset = DEAP(subject=8, num_segments=12, device=device)
+deap_dataset = DEAP(subject=15, num_segments=12, device=device)
 
 train_indices, val_indices = deap_dataset.train_valid_split(split_ratio=0.2)
 train_sampler = SubsetRandomSampler(train_indices)
