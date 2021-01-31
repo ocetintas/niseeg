@@ -95,7 +95,7 @@ class DEAP(Dataset):
         self._epoch_data(eeg_data, labels, landmark_data)
         self._upsample_landmarks()
         self._normalize_landmarks()
-        self._normalize_eeg()
+        #self._normalize_eeg()
 
     def __len__(self):
         return self.eeg.shape[0]
