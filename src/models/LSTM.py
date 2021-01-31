@@ -17,7 +17,7 @@ class LSTM(nn.Module):
 
         # self.fc1 = nn.Linear(in_features=64, out_features=1)
 
-        self.lstm1 = nn.LSTM(input_size=32, hidden_size=64, batch_first=True)
+        self.lstm1 = nn.LSTM(input_size=81*2 + 32, hidden_size=64, batch_first=True)
         self.relu1 = nn.ReLU(inplace=False)
 
         self.fc1 = nn.Linear(in_features=64, out_features=16)
@@ -44,8 +44,8 @@ class LSTM(nn.Module):
         #
         # return out
 
-        #x = torch.cat((l, e), dim=2)
-        x = e
+        x = torch.cat((l, e), dim=2)
+        # x = e
         x, _ = self.lstm1(x)
         x = self.relu1(x[:, -1, :])
         x = self.fc1(x)
