@@ -44,8 +44,8 @@ class LSTM(nn.Module):
         #
         # return out
 
-        x = torch.cat((l, e), dim=2)
-        # x = e
+        # x = torch.cat((l, e), dim=2)
+        x = l
         x, _ = self.lstm1(x)
         x = self.relu1(x[:, -1, :])
         x = self.fc1(x)
