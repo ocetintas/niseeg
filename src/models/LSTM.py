@@ -17,7 +17,7 @@ class LSTM(nn.Module):
 
         # self.fc1 = nn.Linear(in_features=64, out_features=1)
 
-        self.lstm1 = nn.LSTM(input_size=81*2 + 32, hidden_size=64, batch_first=True)
+        self.lstm1 = nn.LSTM(input_size=81*2, hidden_size=64, batch_first=True)
         self.relu1 = nn.ReLU(inplace=False)
 
         self.fc1 = nn.Linear(in_features=64, out_features=16)
