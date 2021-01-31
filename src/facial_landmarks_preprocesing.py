@@ -7,7 +7,7 @@ import shutil
 
 # PARAMETERS TO CHANGE FOR PROCESSING
 DATA_PATH = 'data/face_videos'
-subjects = [1]
+subjects = [2]
 OUTPUT_PATH = 'data/landmarks'
 
 

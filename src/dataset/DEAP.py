@@ -4,6 +4,7 @@ import numpy as np
 import glob
 import scipy.io
 import os.path as osp
+import torch
 
 
 class DEAP(Dataset):
@@ -70,17 +71,31 @@ class DEAP(Dataset):
         assert self.labels.shape == (labels.shape[0]*self.num_segments, 4), "Label epoching went wrong"
         assert self.eeg.shape[0] == self.landmark.shape[0] and self.landmark.shape[0] == self.labels.shape[0], "Number of data does not match!"
 
+    def _normalize_landmarks(self):
+        mean = torch.mean(self.landmark, dim=[0, 1])
+        std = torch.std(self.landmark, dim=[0, 1])
+        self.landmark = (self.landmark - mean)/std
+
+    def _normalize_eeg(self):
+        mean = torch.mean(self.eeg, dim=[0, 1])
+        std = torch.std(self.eeg, dim=[0, 1])
+        self.eeg = (self.eeg - mean)/std
+
+    def _upsample_landmarks(self):
+        """
+        Match the dimensions of landmarks and eeg data by linear upsampling
+        """
+        upsampler = torch.nn.Upsample(scale_factor=2.56, mode='linear', align_corners=False)
+        self.landmark = upsampler(self.landmark.permute(0, 2, 1)).permute(0, 2, 1)  # batch, seq, feature
+
     def _load_data(self):
         eeg_file, landmark_files = self._get_subject_file_names(self.subject)
         eeg_data, labels = self._read_eeg_file(eeg_file)
         landmark_data = self._read_landmark_files(landmark_files)
         self._epoch_data(eeg_data, labels, landmark_data)
+        self._upsample_landmarks()
         self._normalize_landmarks()
-
-    def _normalize_landmarks(self):
-        mean = torch.mean(self.landmark, dim=[0, 1])
-        std = torch.std(self.landmark, dim=[0, 1])
-        self.landmark = (self.landmark - mean)/std
+        self._normalize_eeg()
 
     def __len__(self):
         return self.eeg.shape[0]
