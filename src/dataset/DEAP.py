@@ -75,6 +75,8 @@ class DEAP(Dataset):
         mean = torch.mean(self.landmark, dim=[0, 1])
         std = torch.std(self.landmark, dim=[0, 1])
         self.landmark = (self.landmark - mean)/std
+        eeg_std = torch.std(self.eeg, dim=[0, 1, 2])
+        self.landmark = self.landmark * eeg_std
 
     def _normalize_eeg(self):
         mean = torch.mean(self.eeg, dim=[0, 1])
@@ -95,7 +97,7 @@ class DEAP(Dataset):
         self._epoch_data(eeg_data, labels, landmark_data)
         self._upsample_landmarks()
         self._normalize_landmarks()
-        self._normalize_eeg()
+        #self._normalize_eeg()
 
     def __len__(self):
         return self.eeg.shape[0]
