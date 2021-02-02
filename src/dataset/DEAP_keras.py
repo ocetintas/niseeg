@@ -2,15 +2,19 @@ import keras
 import numpy as np
 import glob
 import scipy.io
-import os.path as osp
+import os
+import torch
 
 
 class DEAP:
-    def __init__(self, subject=12, num_segments=12, device="cpu", num_classes=3):
+    def __init__(
+        self, subject=12, num_segments=12, device="cpu", num_classes=3, upsample=True
+    ):
         self.subject = subject
         self.num_segments = num_segments
         self.device = device
         self.num_classes = num_classes
+        self.upsample = upsample
         self._load_data()
 
     def _get_subject_file_names(self, s):
@@ -128,13 +132,33 @@ class DEAP:
         eeg_data, labels = self._read_eeg_file(eeg_file)
         landmark_data = self._read_landmark_files(landmark_files)
         self._epoch_data(eeg_data, labels, landmark_data)
+        if self.upsample:
+            self._upsample_landmarks()
         self._normalize_landmarks()
 
     def _normalize_landmarks(self):
         mean = np.mean(self.landmark)
-        print(mean)
         std = np.std(self.landmark)
         self.landmark = (self.landmark - mean) / std
+
+    def _normalize_eeg(self):
+        mean = np.mean(self.eeg)
+        std = np.std(self.eeg)
+        self.eeg = (self.eeg - mean) / std
+
+    def _upsample_landmarks(self):
+        """
+        Match the dimensions of landmarks and eeg data by linear upsampling
+        """
+        upsampler = torch.nn.Upsample(
+            scale_factor=2.56, mode="linear", align_corners=False
+        )
+        self.landmark = upsampler(
+            torch.from_numpy(self.landmark).transpose(0, 2, 1)
+        ).permute(
+            0, 2, 1
+        )  # batch, seq, feature
+        self.landmark = self.landmark.numpy()
 
     def __len__(self):
         return self.eeg.shape[0]
