@@ -154,7 +154,7 @@ class DEAP:
             scale_factor=2.56, mode="linear", align_corners=False
         )
         self.landmark = upsampler(
-            torch.from_numpy(self.landmark).transpose(0, 2, 1)
+            torch.from_numpy(self.landmark).permute(0, 2, 1)
         ).permute(
             0, 2, 1
         )  # batch, seq, feature
