@@ -85,7 +85,8 @@ def train(args):
             f.write("Scores on test set: loss=%s accuracy=%s" % tuple(scores))
 
     if args.save_model:
-        model_with_softmax.save(logname+"_model.h5")
+        model_without_softmax.set_weights(model_with_softmax.get_weights())
+        model_without_softmax.save(logname+"_model.h5")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -101,4 +102,4 @@ if __name__ == "__main__":
     parser.add_argument("--lr", type=float, default = 0.0001, help='learning rate')
     parser.add_argument("--epochs", type = int, default = 50, help='training epochs')
     parser.add_argument("--batch-size", type = int, default = 32, help='batch size')
-    train(args)
+    train(arg)
