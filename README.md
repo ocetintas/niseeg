@@ -1,7 +1,7 @@
 # niseeg
 
 # Multimodal Emotion Classification with EEG and Facial Expressions
-## 20W Neuro-Inspired System Engineering Project @ TUM 
+## 20W Neuro-Inspired System Engineering Project @ TUM Neuroengineering
 
 Contributors: Orcun Cetintas, Jin Lee
 
